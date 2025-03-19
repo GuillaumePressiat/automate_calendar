@@ -42,6 +42,9 @@ Ce faux projet permet de :
 
 - reports/rapport_calendrier.qmd : générer un rapport sur le traitement effectué
 
+Voir le rapport ici : 
+
+[https://guillaumepressiat.github.io/automate_calendar/](https://guillaumepressiat.github.io/automate_calendar/)
 
 ## Exemple de fichiers produits
 
