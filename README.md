@@ -42,6 +42,9 @@ Ce faux projet permet de :
 
 - reports/rapport_calendrier.qmd : générer un rapport sur le traitement effectué
 
+
+## Exemple de fichiers produits
+
 ```
 % tree 
 .
