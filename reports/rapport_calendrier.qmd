@@ -1,0 +1,115 @@
+---
+title: "Rapport calendrier"
+format: 
+  html:
+    embed-resources: true
+toc: true
+editor: visual
+---
+
+## L'objectif
+
+ce projet ne sert pas à grand chose.
+
+## Import des données
+
+
+```{r}
+library(dplyr, warn.conflicts = FALSE)
+
+liste_fichiers_xlsx <- list.files(here::here('data_out'), 
+                                  recursive = TRUE, 
+                                  pattern = ".xlsx",
+                                  full.names = TRUE)
+
+
+calendrier_final <- liste_fichiers_xlsx %>% 
+  purrr::map_df(
+    readxl::read_excel
+  )
+
+```
+
+## Statistiques
+
+
+### Effectifs par mois
+
+```{r}
+#| echo: true
+calendrier_final %>% 
+  group_by(annee, mois_label) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  tidyr::pivot_wider(names_from = mois_label, values_from = n) %>% 
+  knitr::kable()
+```
+
+### Effectifs par jours de la semaine
+
+```{r}
+#| echo: true
+calendrier_final %>% 
+  group_by(annee, jour_label) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  tidyr::pivot_wider(names_from = annee, values_from = n) %>% 
+  knitr::kable()
+```
+
+### Jours fériés / vacances ?
+
+On utilise l'API calendrier.gouv.fr
+
+
+#### Fériés
+
+```{r}
+#| echo: true
+jours_feries <- jsonlite::fromJSON('https://calendrier.api.gouv.fr/jours-feries/metropole.json') %>% 
+  as_tibble() %>% 
+  tidyr::pivot_longer(names_to = "jour_date", values_to = "libelle_ferie", cols = everything()) %>% 
+  mutate(jour_date = as.Date(jour_date))
+
+jours_feries %>% head() %>% knitr::kable()
+```
+
+```{r}
+#| echo: true
+calendrier_final %>% 
+  left_join(jours_feries %>% 
+              mutate(ferie = 1), by = c('jour_date')) %>% 
+  filter(ferie == 1) %>% 
+  group_by(annee, mois_label) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  tidyr::pivot_wider(names_from = annee, values_from = n, values_fill = 0) %>% 
+  arrange(mois_label) %>% 
+  knitr::kable()
+```
+
+#### Vacances
+
+On utilise les données du package package python vacances-scolaires-france.
+
+```{r}
+#| echo: true
+#| message: false
+jours_vacances <- readr::read_csv('https://raw.githubusercontent.com/AntoineAugusti/vacances-scolaires/refs/heads/master/data.csv') %>% 
+  as_tibble() %>% 
+  select(date, vacances_zone_b, nom_vacances) %>% 
+  filter(vacances_zone_b) %>% 
+  rename(jour_date = date)
+
+jours_vacances %>% head() %>% knitr::kable()
+```
+
+```{r}
+#| echo: true
+calendrier_final %>% 
+  left_join(jours_vacances %>% 
+              mutate(vacances = 1), by = c('jour_date')) %>% 
+  # filter(vacances == 1) %>% 
+  group_by(annee, nom_vacances) %>% 
+  summarise(n = n(), .groups = "drop") %>% 
+  tidyr::pivot_wider(names_from = annee, values_from = n, values_fill = 0) %>% 
+  # arrange(mois_label) %>% 
+  knitr::kable()
+```
