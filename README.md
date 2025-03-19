@@ -35,7 +35,7 @@ Ce faux projet permet de :
 
 - 00_clean_up.R : nettoyer les répertoires de données intermédiaires
 - 01_faire_calendrier.R : générer un tableau R calendrier d'une date début jusqu'à une date fin en arguments
-- 02_exporter_calendrier_arborescence.R : générer une arborescence de fichiers comme présenté ci-dessous en aperçu (4008 fichiers xlsx sont génrés entre 2015 et 2025, un par jour)
+- 02_exporter_calendrier_arborescence.R : générer une arborescence de fichiers comme présenté ci-dessous en aperçu (4018 fichiers xlsx sont générés entre 2015 et 2025, un par jour)
 - 03_reformer_calendrier.R : relire tous ces fichiers pour en faire un tableau de données 
 
 - main.R : spécifier date début et date fin et lancer tous les scripts
